@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Party Fashion — Nightlife Wear & Streetstyle</title>
+  <meta name="description" content="Party Fashion — Nightlife Wear & Streetstyle. Shoppe Oversize Hoodies, Cargo Pants & mehr." />
+  <style>
+    :root{
+      --black-1:#0a0a0a; --black-2:#1a1a1a;
+      --text-light:#e0e0e0; --text-medium:#b0b0b0;
+      --gold-1:#d4af37; --gold-2:#f4d03f;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background: linear-gradient(135deg,var(--black-1) 0%, var(--black-2) 50%, var(--black-1) 100%);
+      color:var(--text-light);
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+    }
+    #bg-wrapper{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; contain:paint; }
+    .bg-layer{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background-position:center; background-repeat:no-repeat; background-size:contain; will-change:transform,opacity,filter; mix-blend-mode:screen; }
+    .layer-1{ width:140vmin; opacity:.55; filter:blur(.6px) saturate(1.03); background-image:url('assets/images/hoodie-black.svg'); }
+    .layer-2{ width:100vmin; opacity:.85; background-image:url('assets/images/cargo-pants.svg'); }
+    .layer-3{ width:170vmin; opacity:.25; filter:contrast(1.05); background-image:url('assets/images/placeholder.svg'); background-size:cover; }
+    #particle-canvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+    header{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; padding:20px 32px; }
+    .brand{ display:flex; gap:14px; align-items:center; text-decoration:none; color:var(--text-light); }
+    .brand .logo{ width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg,var(--gold-1),var(--gold-2)); display:inline-block; }
+    .brand h1{ font-size:16px; color:var(--gold-1); margin:0; font-weight:700; letter-spacing:0.6px; }
+    nav{ display:flex; gap:18px; align-items:center; }
+    nav a{ color:var(--text-medium); text-decoration:none; font-weight:600; }
+    .top-cta{ display:flex; gap:10px; align-items:center; }
+    .cart-button{ position:relative; border:0; background:transparent; color:var(--text-light); cursor:pointer; padding:8px; border-radius:8px; }
+    .cart-count{ position:absolute; top:-6px; right:-4px; background:var(--gold-1); color:#000; font-weight:700; border-radius:999px; padding:2px 6px; font-size:12px; }
+    .hero{ position:relative; z-index:1; max-width:1200px; margin:34px auto; padding:36px; display:flex; gap:28px; align-items:center; justify-content:space-between; }
+    .hero-left{ max-width:640px; }
+    .kicker{ color:var(--gold-1); font-weight:700; letter-spacing:1px; margin-bottom:8px }
+    .hero h2{ font-size:36px; color:var(--text-light); margin-bottom:12px }
+    .hero p{ color:var(--text-medium); margin-bottom:18px; max-width:520px }
+    .hero .actions{ display:flex; gap:12px; flex-wrap:wrap }
+    .btn{ display:inline-block; padding:12px 18px; border-radius:8px; font-weight:800; cursor:pointer; border:0; text-decoration:none; }
+    .btn-primary{ background:linear-gradient(135deg,var(--gold-1),var(--gold-2)); color:#000; }
+    .btn-outline{ background:transparent; border:2px solid var(--gold-1); color:var(--gold-1); }
+    .products{ z-index:1; max-width:1200px; margin:18px auto 80px; padding:18px; display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+    .card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); display:flex; flex-direction:column; gap:10px; }
+    .card img{ width:100%; height:220px; object-fit:cover; border-radius:8px }
+    .card h3{ font-size:16px; margin:0; color:var(--text-light) }
+    .price{ font-weight:800; color:var(--text-light) }
+    footer{ z-index:1; padding:30px 20px; border-top:1px solid rgba(255,255,255,0.03); color:var(--text-medium); text-align:center; }
+    .cart-modal{ position:fixed; inset:0; z-index:1500; display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none; }
+    .cart-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,0.5); backdrop-filter: blur(3px); opacity:0; transition:opacity .18s ease; pointer-events:auto; }
+    .cart-panel{ width:380px; max-width:100%; margin:20px; border-radius:8px 0 0 8px; background:linear-gradient(180deg, rgba(10,10,10,0.98), rgba(20,20,20,0.98)); color:var(--text-light); box-shadow:0 20px 60px rgba(0,0,0,0.6); transform:translateY(10px); opacity:0; pointer-events:auto; transition:transform .22s ease, opacity .22s ease; display:flex; flex-direction:column; overflow:hidden; border-left:1px solid rgba(255,255,255,0.03) }
+    .cart-panel.open{ transform:translateY(0); opacity:1 }
+    .cart-panel header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.03) }
+    .cart-panel .items{ padding:12px; max-height:50vh; overflow:auto }
+    .cart-panel .item{ display:flex; gap:12px; align-items:center; padding:10px 4px; border-bottom:1px dashed rgba(255,255,255,0.03) }
+    .cart-panel img{ width:64px; height:64px; object-fit:cover; border-radius:6px }
+    @media (max-width:900px){ .hero{ flex-direction:column; text-align:center; gap:16px } .hero-left{ max-width:100% } }
+    @media (prefers-reduced-motion: reduce), (max-width:768px){ .bg-layer, #particle-canvas { display:none !important } }
+  </style>
+</head>
+<body>
+  <div id="bg-wrapper" aria-hidden="true">
+    <div class="bg-layer layer-1" role="presentation"></div>
+    <div class="bg-layer layer-2" role="presentation"></div>
+    <div class="bg-layer layer-3" role="presentation"></div>
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+  </div>
+
+  <header role="banner">
+    <a class="brand" href="/">
+      <span class="logo" aria-hidden="true"></span>
+      <h1>PARTY FASHION</h1>
+    </a>
+
+    <nav aria-label="Hauptnavigation">
+      <a href="/damen">Damen</a>
+      <a href="/herren">Herren</a>
+      <a href="/neuheiten">Neuheiten</a>
+      <a href="/sale">Sale</a>
+    </nav>
+
+    <div class="top-cta">
+      <a class="kicker" href="/kontakt" style="text-decoration:none;color:var(--gold-1);font-weight:700">Kontakt</a>
+      <button id="cart-button" class="cart-button" aria-label="Warenkorb öffnen" aria-haspopup="dialog" aria-controls="cart-panel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h2l1 9h12l1-6H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.2" fill="currentColor"/><circle cx="17" cy="19" r="1.2" fill="currentColor"/></svg>
+        <span id="cart-count" class="cart-count" aria-live="polite">0</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero" role="region" aria-labelledby="hero-title">
+    <div class="hero-left">
+      <div class="kicker">Nightlife Wear & Streetstyle</div>
+      <h2 id="hero-title">Glamouröse Pieces für die Nacht</h2>
+      <p>Entdecke unsere Schwarz‑Gold Kollektion: Oversize Hoodies, Cargo Pants und Party Dresses. Schneller Versand & sichere Bezahlung.</p>
+      <div class="actions">
+        <a href="/neuheiten" class="btn btn-primary">Neuheiten entdecken</a>
+        <a href="/sale" class="btn btn-outline">Sale</a>
+      </div>
+    </div>
+    <div class="hero-right" aria-hidden="true" style="max-width:420px;">
+      <img src="assets/images/hoodie-black.svg" alt="" style="width:100%; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.6);">
+    </div>
+  </section>
+
+  <main>
+    <section class="products" aria-label="Produkte">
+      <article class="card" data-product-id="oversize-hoodie-black">
+        <img src="assets/images/hoodie-black.svg" alt="Oversize Hoodie Black">
+        <h3>Oversize Hoodie Black</h3>
+        <div class="meta">
+          <span class="price">€49,90</span>
+          <button class="add-to-cart btn" data-id="oversize-hoodie-black" data-name="Oversize Hoodie Black" data-price="49.90" data-image="assets/images/hoodie-black.svg" aria-label="Oversize Hoodie Black zum Warenkorb hinzufügen">In den Warenkorb</button>
+        </div>
+      </article>
+
+      <article class="card" data-product-id="cargo-pants">
+        <img src="assets/images/cargo-pants.svg" alt="Cargo Pants">
+        <h3>Streetwear Cargo Pants</h3>
+        <div class="meta">
+          <span class="price">€59,90</span>
+          <button class="add-to-cart btn" data-id="cargo-pants" data-name="Streetwear Cargo Pants" data-price="59.90" data-image="assets/images/cargo-pants.svg" aria-label="Cargo Pants zum Warenkorb hinzufügen">In den Warenkorb</button>
+        </div>
+      </article>
+
+      <article class="card" data-product-id="party-dress-glitter">
+        <img src="assets/images/placeholder.svg" alt="Party Dress Glitter">
+        <h3>Party Dress Glitter</h3>
+        <div class="meta">
+          <span class="price">€89,90</span>
+          <button class="add-to-cart btn" data-id="party-dress-glitter" data-name="Party Dress Glitter" data-price="89.90" data-image="assets/images/placeholder.svg" aria-label="Party Dress Glitter zum Warenkorb hinzufügen">In den Warenkorb</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="cart-modal" class="cart-modal" role="dialog" aria-modal="true" aria-labelledby="cart-title" hidden>
+    <div class="cart-panel" id="cart-panel" aria-hidden="true">
+      <header>
+        <h2 id="cart-title">Dein Warenkorb</h2>
+        <button id="cart-close" aria-label="Warenkorb schließen" style="background:transparent;border:0;color:var(--text-medium);font-size:22px">×</button>
+      </header>
+      <div class="items" id="cart-items" tabindex="0" aria-live="polite"></div>
+      <footer style="padding:12px;border-top:1px solid rgba(255,255,255,0.03)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--text-medium)">Zwischensumme</span><strong id="cart-subtotal">€0,00</strong></div>
+        <div style="display:flex;gap:8px">
+          <a href="cart.html" class="btn btn-outline" style="flex:1;text-align:center">Warenkorb anzeigen</a>
+          <button id="checkout-btn" class="btn btn-primary" style="flex:1">Zur Kasse</button>
+        </div>
+      </footer>
+    </div>
+    <div id="cart-backdrop" class="cart-backdrop" hidden></div>
+  </div>
+
+  <footer role="contentinfo">
+    <p style="margin-bottom:6px">© Party Fashion — Nightlife Wear & Streetstyle</p>
+    <p style="color:var(--text-medium);font-size:13px">Impressum • Datenschutz • AGB</p>
+  </footer>
+
+  <script>
+  (function(){
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    if(!prefersReduced && !isMobile){
+      const l1 = document.querySelector('.layer-1');
+      const l2 = document.querySelector('.layer-2');
+      const l3 = document.querySelector('.layer-3');
+      const canvas = document.getElementById('particle-canvas');
+
+      function resizeCanvas(){ if(!canvas) return; const dpr = window.devicePixelRatio || 1; canvas.width = Math.floor(canvas.clientWidth * dpr); canvas.height = Math.floor(canvas.clientHeight * dpr); const ctx = canvas.getContext('2d'); if(ctx) ctx.setTransform(dpr,0,0,dpr,0,0); }
+
+      let ticking=false;
+      function onScroll(){
+        if(ticking) return;
+        ticking=true;
+        window.requestAnimationFrame(()=> {
+          const scrollY = window.scrollY || window.pageYOffset;
+          const docH = document.documentElement.scrollHeight - window.innerHeight || 1;
+          const p = Math.max(0, Math.min(1, scrollY / docH));
+          if(l1) { const ty = -50 + (-scrollY * 0.04); const scale = 1 + Math.min(scrollY/5000,0.12); l1.style.transform = `translate(-50%, ${ty}px) scale(${scale})`; l1.style.opacity = (0.65 - p*0.2); }
+          if(l2) { const ty = -50 + (-scrollY * 0.02); const rot = (scrollY/60)%360; l2.style.transform = `translate(-50%, ${ty}px) rotate(${rot}deg)`; l2.style.opacity = (0.9 - p*0.15); }
+          if(l3) { const ty = -50 + (-scrollY * 0.01); const scale = 1 + Math.min(scrollY/10000,0.05); l3.style.transform = `translate(-50%, ${ty}px) scale(${scale})`; l3.style.opacity = (0.3 - p*0.05); }
+          ticking=false;
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive:true });
+      window.addEventListener('resize', resizeCanvas, { passive:true });
+      document.addEventListener('DOMContentLoaded', ()=>{ resizeCanvas(); onScroll(); });
+
+      if(canvas){
+        const ctx = canvas.getContext('2d');
+        let particles = [], lastSpawn = performance.now();
+        const maxParticles = 20, spawnInterval = 700;
+        const rand = (a,b)=>Math.random()*(b-a)+a;
+        function spawn(){ if(particles.length >= maxParticles) return; const cw = canvas.clientWidth, ch = canvas.clientHeight; particles.push({ x: cw/2 + rand(-80,80), y: ch/2 + rand(-60,60), vx: rand(-0.15,0.15), vy: rand(-0.35,-0.05), size: rand(1,4), life: rand(900,1700), birth: performance.now() }); }
+        let lastTime = performance.now();
+        function loop(now){ const dt = (now - lastTime) * 0.06; lastTime = now; ctx.clearRect(0,0,canvas.clientWidth, canvas.clientHeight); if(now - lastSpawn > spawnInterval){ spawn(); lastSpawn = now; } for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x += p.vx * dt; p.y += p.vy * dt; const age = now - p.birth; const a = Math.max(0, 1 - age / p.life); ctx.save(); ctx.globalAlpha = a*0.95; ctx.fillStyle = 'rgba(212,175,55,1)'; ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.restore(); if(age > p.life || a <= 0.02) particles.splice(i,1); } requestAnimationFrame(loop); }
+        requestAnimationFrame(loop);
+      }
+    }
+
+    const STORAGE_KEY = 'pf_cart_v1';
+    const cartButton = document.getElementById('cart-button');
+    const cartCount = document.getElementById('cart-count');
+    const cartModal = document.getElementById('cart-modal');
+    const cartPanel = document.getElementById('cart-panel');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+    const cartClose = document.getElementById('cart-close');
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartSubtotal = document.getElementById('cart-subtotal');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    function loadCart(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):{ items: {} }; }catch(e){ return { items:{} }; } }
+    function saveCart(cart){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }catch(e){} }
+    function formatMoney(n){ return '€' + Number(n).toFixed(2).replace('.',','); }
+    function calcTotals(cart){ let qty=0, subtotal=0; Object.values(cart.items).forEach(it=>{ qty += it.quantity; subtotal += (parseFloat(it.price) * it.quantity); }); return { qty, subtotal }; }
+
+    function renderCartUI(){
+      const cart = loadCart();
+      const totals = calcTotals(cart);
+      cartCount.textContent = totals.qty;
+      cartSubtotal.textContent = formatMoney(totals.subtotal);
+      cartItemsContainer.innerHTML = '';
+      if(Object.keys(cart.items).length === 0){
+        cartItemsContainer.innerHTML = '<p style="color:var(--text-medium); padding:18px;">Dein Warenkorb ist leer.</p>';
+        return;
+      }
+      Object.values(cart.items).forEach(item=>{
+        const itemEl = document.createElement('div');
+        itemEl.className = 'item';
+        itemEl.innerHTML = `
+          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" />
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="font-size:14px">${escapeHtml(item.name)}</strong>
+              <span style="font-weight:700">${formatMoney(item.price)}</span>
+            </div>
+            <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:inline-flex;align-items:center;gap:6px;border-radius:6px;background:rgba(255,255,255,0.02);padding:4px" data-id="${escapeHtml(item.id)}">
+                <button class="qty-decrease" aria-label="Menge verringern">−</button>
+                <span class="qty-value" style="min-width:22px;text-align:center;">${item.quantity}</span>
+                <button class="qty-increase" aria-label="Menge erhöhen">+</button>
+              </div>
+              <button class="remove-item" data-id="${escapeHtml(item.id)}" style="background:transparent;border:0;color:var(--text-medium);cursor:pointer">Entfernen</button>
+            </div>
+          </div>
+        `;
+        cartItemsContainer.appendChild(itemEl);
+      });
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+    function addToCart(product){
+      const cart = loadCart();
+      const id = product.id;
+      if(cart.items[id]) cart.items[id].quantity += 1;
+      else cart.items[id] = Object.assign({}, product, { quantity:1 });
+      saveCart(cart);
+      renderCartUI();
+      animateCartButton();
+    }
+    function setQuantity(id, qty){
+      const cart = loadCart();
+      if(!cart.items[id]) return;
+      qty = Math.max(0, Math.floor(qty));
+      if(qty === 0) delete cart.items[id];
+      else cart.items[id].quantity = qty;
+      saveCart(cart);
+      renderCartUI();
+    }
+    function removeItem(id){ const cart = loadCart(); if(cart.items[id]) delete cart.items[id]; saveCart(cart); renderCartUI(); }
+
+    document.querySelectorAll('.add-to-cart').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const name = btn.dataset.name || 'Produkt';
+        const price = parseFloat(btn.dataset.price || '0') || 0;
+        const image = btn.dataset.image || btn.closest('.card')?.querySelector('img')?.src || 'assets/images/placeholder.svg';
+        addToCart({ id, name, price, image });
+      });
+    });
+
+    cartItemsContainer.addEventListener('click', function(e){
+      const dec = e.target.closest('.qty-decrease');
+      const inc = e.target.closest('.qty-increase');
+      const rem = e.target.closest('.remove-item');
+      if(dec){ const id = dec.closest('[data-id]')?.dataset.id; if(!id) return; const cart = loadCart(); setQuantity(id, Math.max(0, cart.items[id].quantity-1)); }
+      else if(inc){ const id = inc.closest('[data-id]')?.dataset.id; if(!id) return; const cart = loadCart(); setQuantity(id, cart.items[id].quantity+1); }
+      else if(rem){ const id = rem.dataset.id; if(!id) return; removeItem(id); }
+    });
+
+    function openCart(){ cartModal.hidden = false; cartPanel.classList.add('open'); cartPanel.setAttribute('aria-hidden','false'); cartBackdrop.hidden = false; renderCartUI(); cartClose.focus(); }
+    function closeCart(){ cartModal.hidden = true; cartPanel.classList.remove('open'); cartPanel.setAttribute('aria-hidden','true'); cartBackdrop.hidden = true; cartButton.focus(); }
+    cartButton.addEventListener('click', ()=> openCart());
+    cartClose.addEventListener('click', ()=> closeCart());
+    cartBackdrop.addEventListener('click', ()=> closeCart());
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !cartModal.hidden) closeCart(); });
+
+    checkoutBtn.addEventListener('click', ()=> {
+      const cart = loadCart(); const items = Object.values(cart.items || {});
+      if(items.length === 0){ alert('Dein Warenkorb ist leer.'); return; }
+      const totals = calcTotals(cart);
+      const orderId = 'PF-' + Math.random().toString(36).slice(2,10).toUpperCase();
+      const order = { orderId, createdAt: new Date().toISOString(), items: items.map(i=>({ id:i.id, name:i.name, price:i.price, qty:i.quantity })), summary: totals };
+      try{ sessionStorage.setItem('pf_last_order', JSON.stringify(order)); }catch(e){}
+      localStorage.removeItem(STORAGE_KEY);
+      location.href = 'order-confirmation.html?order=' + encodeURIComponent(orderId);
+    });
+
+    function animateCartButton(){ cartButton.animate([{ transform:'translateY(-4px)'},{ transform:'translateY(0)'}], { duration:220, easing:'ease-out' }); }
+
+    renderCartUI();
+    (function seedIfEmpty(){ const c = loadCart(); if(Object.keys(c.items||{}).length === 0){ c.items = { 'oversize-hoodie-black': { id:'oversize-hoodie-black', name:'Oversize Hoodie Black', price:49.9, image:'assets/images/hoodie-black.svg', quantity:1 }, 'cargo-pants': { id:'cargo-pants', name:'Streetwear Cargo Pants', price:59.9, image:'assets/images/cargo-pants.svg', quantity:1 } }; saveCart(c); renderCartUI(); } })();
+    window.addEventListener('storage', e=>{ if(e.key === STORAGE_KEY) renderCartUI(); });
+  })();
+  </script>
+</body>
+</html>
